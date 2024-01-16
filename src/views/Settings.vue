@@ -17,7 +17,7 @@
             is added on sides from ion-item and ion-padding-vertical to compensate the removed
             vertical padding -->
             <ion-card-header class="ion-no-padding ion-padding-vertical">
-              <ion-card-subtitle>{{ userProfile?.userLoginId }}</ion-card-subtitle>sdf
+              <ion-card-subtitle>{{ userProfile?.userLoginId }}</ion-card-subtitle>
               <ion-card-title>{{ userProfile?.partyName }}</ion-card-title>
             </ion-card-header>
           </ion-item>
