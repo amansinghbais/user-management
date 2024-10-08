@@ -2,10 +2,9 @@
   <ion-content>
     <ion-list>
       <ion-list-header>{{ productStore.storeName || productStore.productStoreId }}</ion-list-header>
-      <ion-item>
+      <ion-item button @click="redirectToStore()">
         <ion-label>
-          {{ getDateTime(productStore.fromDate) }}
-          <p>{{ translate("added to product store") }}</p>
+          {{ translate("View product store") }}
         </ion-label>
       </ion-item>
       <ion-item button @click="confirmRemove()" lines="none">
@@ -48,14 +47,12 @@ export default defineComponent({
     ...mapGetters({
       selectedUser: 'user/getSelectedUser',
       userProductStores: 'user/getUserProductStores',
+      omsRedirectionInfo: 'user/getOmsRedirectionInfo',
     })
   },
   methods: {
     closePopover() {
       popoverController.dismiss();
-    },
-    getDateTime(time: any) {
-      return DateTime.fromMillis(time).toLocaleString(DateTime.DATETIME_MED);
     },
     async removeProductStoreRole() {
       try {
@@ -95,6 +92,11 @@ export default defineComponent({
         ],
       });
       return alert.present();
+    },
+    redirectToStore() {
+      console.log(this.omsRedirectionInfo);
+      const companyDetailUrl = `https://company.hotwax.io/login?oms=${this.omsRedirectionInfo.url}&token=${this.omsRedirectionInfo.token}&productStoreId=${this.productStore.productStoreId}`
+      window.location.href = (companyDetailUrl)
     }
   },
   setup() {

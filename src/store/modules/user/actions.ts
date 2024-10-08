@@ -30,7 +30,9 @@ const actions: ActionTree<UserState, RootState> = {
  */
   async login({ commit, dispatch }, payload) {
     try {
-      const { token, oms } = payload;
+      const { token, oms, omsRedirectionUrl } = payload;
+      console.log(omsRedirectionUrl);
+      
       dispatch("setUserInstanceUrl", oms);
 
       // Getting the permissions list from server
@@ -68,6 +70,20 @@ const actions: ActionTree<UserState, RootState> = {
       }
       updateToken(token)
 
+      console.log(omsRedirectionUrl);
+      if(omsRedirectionUrl) {
+        const api_key = await UserService.moquiLogin(omsRedirectionUrl, token)
+        console.log(api_key);
+        
+        if(api_key) {
+          dispatch("setOmsRedirectionInfo", { url: omsRedirectionUrl, token: api_key })
+        } else {
+          console.error("Some of the configuration of the app is missing.");
+        }
+      } else {
+        console.error("Some of the configuration of the app is missing.")
+      }
+
       // TODO user single mutation
       commit(types.USER_INFO_UPDATED, userProfile);
       commit(types.USER_PERMISSIONS_UPDATED, appPermissions);
@@ -90,7 +106,7 @@ const actions: ActionTree<UserState, RootState> = {
   /**
    * Logout user
    */
-  async logout({ commit }, payload) {
+  async logout({ commit, dispatch }, payload) {
     // store the url on which we need to redirect the user after logout api completes in case of SSO enabled
     let redirectionUrl = ''
 
@@ -122,6 +138,7 @@ const actions: ActionTree<UserState, RootState> = {
     commit(types.USER_END_SESSION)
     this.dispatch('util/clearUtilState')
     this.dispatch('permission/clearPermissionState')
+    dispatch("setOmsRedirectionInfo", { url: "", token: "" })
 
     resetPermissions();
     resetConfig();
@@ -155,6 +172,10 @@ const actions: ActionTree<UserState, RootState> = {
     current.userTimeZone = timeZoneId;
     commit(types.USER_INFO_UPDATED, current);
     Settings.defaultZone = current.userTimeZone;
+  },
+
+  setOmsRedirectionInfo({ commit }, payload) {
+    commit(types.USER_OMS_REDIRECTION_INFO_UPDATED, payload)
   },
 
   async getSelectedUserDetails({ commit, state }, payload) {
